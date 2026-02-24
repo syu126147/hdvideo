@@ -37,9 +37,21 @@
 
         async function init() {
             try {
+                // 1. 先初始化門牌
                 await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) { liff.login(); }
-            } catch (err) { console.error("LIFF 初始化失敗", err); }
+
+                // 2. 檢查登入狀態 (這是分水嶺)
+                if (!liff.isLoggedIn()) {
+                    // ❌ 沒登入：強迫跳轉到 LINE 授權頁
+                    liff.login(); 
+                } else {
+                    // ✅ 只有確定登入(授權)成功了，才啟動分享視窗
+                    // 這樣 LINE 才會大方地把好友名單發給你
+                    forceHijack(); 
+                }
+            } catch (err) { 
+                console.error("LIFF 初始化失敗", err); 
+            }
         }
 
          async function forceHijack() {
@@ -78,6 +90,7 @@
     </script>
 </body>
 </html>
+
 
 
 
